@@ -1,0 +1,19 @@
+# Local credentials; allow the documented, secret-free example template.
+.env
+.env.*
+!.env.example
+
+# Generated application files.
+/node_modules/
+/dist/
+/dist-test/
+.context-pack.*
+
+# Private learning context.
+/devpost/learner-profile.md
+
+# Course curriculum shipped with this workspace, not part of the CLI app.
+/.agents/
+/.claude/
+/agent/
+/skills-lock.json
