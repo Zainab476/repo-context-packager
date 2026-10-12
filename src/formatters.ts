@@ -14,8 +14,12 @@ export function formatMarkdown(context: ContextPackage): string {
     `- High-relevance files selected: ${context.files.length}`,
     `- Files and directories excluded: ${context.excludedCount}`,
     `- Git status: ${context.gitAvailable ? "available" : "unavailable"} (${context.changedCount} changed paths)`,
+    `- Approximate tokens: ${context.estimatedTokens}`,
   ];
 
+  if (context.maxTokens !== undefined) {
+    lines.push(`- Token budget: ${context.maxTokens}`);
+  }
   if (context.task) {
     lines.push(`- Task: ${context.task}`);
   }
@@ -49,5 +53,50 @@ export function formatMarkdown(context: ContextPackage): string {
     );
   }
 
+  if (context.omittedFiles.length > 0) {
+    lines.push("", "## Omitted Files");
+    for (const file of context.omittedFiles) {
+      lines.push(`- \`${file.path}\` (score ${file.score}): ${file.reason}`);
+    }
+  }
+
+  if (
+    context.maxTokens !== undefined &&
+    context.estimatedTokens > context.maxTokens
+  ) {
+    lines.push(
+      "",
+      `Warning: the package summary and omission report exceed the ${context.maxTokens}-token budget.`,
+    );
+  }
+
   return `${lines.join("\n")}\n`;
+}
+
+export function formatJson(context: ContextPackage): string {
+  return `${JSON.stringify(
+    {
+      repository: context.projectName,
+      task: context.task,
+      scannedCount: context.scannedCount,
+      excludedCount: context.excludedCount,
+      git: {
+        available: context.gitAvailable,
+        changedCount: context.changedCount,
+      },
+      projectHints: context.projectHints,
+      estimatedTokens: context.estimatedTokens,
+      maxTokens: context.maxTokens,
+      files: context.files.map((file) => ({
+        path: file.relativePath,
+        categories: file.categories,
+        score: file.score,
+        reasons: file.reasons,
+        content: file.content,
+      })),
+      omittedFiles: context.omittedFiles,
+    },
+    null,
+    2,
+  )}\n`;
 }

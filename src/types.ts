@@ -7,10 +7,14 @@ export type FileCategory =
   | "source"
   | "documentation";
 
+export type OutputFormat = "markdown" | "json";
+
 export interface CliOptions {
   target: string;
   task?: string;
   diff: boolean;
+  format: OutputFormat;
+  maxTokens?: number;
   help: boolean;
 }
 
@@ -41,6 +45,12 @@ export interface ScanResult {
   warnings: string[];
 }
 
+export interface OmittedFile {
+  path: string;
+  score: number;
+  reason: string;
+}
+
 export interface ContextPackage {
   projectName: string;
   task?: string;
@@ -50,4 +60,7 @@ export interface ContextPackage {
   changedCount: number;
   projectHints: string[];
   files: RankedFile[];
+  omittedFiles: OmittedFile[];
+  estimatedTokens: number;
+  maxTokens?: number;
 }

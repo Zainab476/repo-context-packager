@@ -19,7 +19,7 @@ Build mode: fast
   Learner check: Run the CLI against the fixture and inspect the ranked list and saved package. Point out one inclusion that seems useful and any important file that seems missing or noisy.
   Commit: `Build task-aware Markdown context pack`
 
-- [ ] **2. Prioritize Git changes and support diff focus**
+- [x] **2. Prioritize Git changes and support diff focus**
   Becomes usable: Changed files receive an explainable ranking boost; `--diff` focuses on changed files and nearby context, while clean or non-Git directories fall back to structural ranking.
   Why now: The basic context workflow is already usable, so Git behavior can be added and verified without making the core ranking depend on Git.
   PRD ref: `prd.md > The Core Journey`; `prd.md > Features and Behavior > Repository and Diff Scanning`; `prd.md > Features and Behavior > Relevance Heuristics`; `prd.md > States and Boundaries`

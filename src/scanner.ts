@@ -275,12 +275,18 @@ async function getGitStatus(root: string): Promise<GitStatus> {
       },
       (error, stdout) => {
         if (error) {
-          const message =
-            error instanceof Error ? error.message : String(error);
+          const errorCode =
+            error instanceof Error && "code" in error ? error.code : undefined;
+          const reason =
+            errorCode === "ENOENT"
+              ? "Git is not available on PATH"
+              : typeof errorCode === "number"
+                ? `Git status exited with code ${errorCode}`
+                : "Git status could not be read";
           resolve({
             available: false,
             changedPaths: [],
-            warning: `Git status unavailable; proceeding without Git-based ranking (${message}).`,
+            warning: `Git status unavailable (${reason}); proceeding without Git-based ranking.`,
           });
           return;
         }
