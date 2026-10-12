@@ -29,7 +29,7 @@ Build mode: fast
   Learner check: Run once against a changed fixture and once against a clean or non-Git fixture; check that the output explains the different ranking basis rather than failing when there are no changes.
   Commit: `Add Git-aware context ranking`
 
-- [ ] **3. Add JSON output and whole-file token budgeting**
+- [x] **3. Add JSON output and whole-file token budgeting**
   Becomes usable: The user can select JSON output and optionally cap the approximate bundle size; the CLI keeps source files whole, reports omissions, and documents how to try the tool.
   Why now: The baseline and Git-aware behaviors are already working; this completes output flexibility and the bundle-size control without obscuring the core ranking behavior.
   PRD ref: `prd.md > Features and Behavior > Context Output Package`; `prd.md > States and Boundaries`; `prd.md > What We're Building`
@@ -42,23 +42,25 @@ Build mode: fast
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored — after slice 1; learner confirmed task-matching files rank usefully and requested less unrelated structural-only context.
-- [ ] Final kick-the-tires exploration and feedback completed — after slice 3, before any final-review revisions.
+- [x] Final kick-the-tires exploration and feedback completed — learner exercised Markdown and JSON flows, a one-token cap, and an invalid target; all behaved as expected.
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Final review complete — learner confirmed the CLI is ready for Devpost; no revisions requested.
+
+Review outcome: Markdown and JSON packages were generated with task-relevant ranking and inclusion reasons; `--max-tokens 1` reported omissions without truncation; a missing target exited cleanly with code 1 and no stack trace. Learner confirmed the PoC is ready to submit.
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — prior practice connected through the feedback-to-test example
+- [x] Optional edit and transfer reflection addressed — edit not applicable; transfer question offered, learner redirected to submission drafting
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: [what actually happened; real document/test/code references; unfinished work if interrupted]
-Route and stops: [actual paths and symbols; guided stops completed, or reference-only route]
-Edit outcome: [tried/kept/reverted/declined/not applicable; verification if changed]
-Reflection: [offered/answered/declined/already covered — personal answer belongs only in the ignored profile]
-Activity mode: [live app and editor, explicit static fallback, focused alternative, prior practice, or recap]
+Activity and evidence: Connected the early Slice 1 feedback to the task-selection rule in `src/ranker.ts` (`rankFiles()`) and its regression test, `test/ranker.test.ts`; the final terminal review also confirmed the Markdown/JSON outputs, whole-file omission at a one-token cap, and clean invalid-target failure.
+Route and stops: Reference route only, not toured interactively: `src/cli.ts` (`parseOptions()`, `main()`) -> `src/scanner.ts` (`scanRepository()`) and `src/ranker.ts` (`rankFiles()`) -> `src/packager.ts` (`packageContext()`) and `src/formatters.ts` (`formatMarkdown()`, `formatJson()`). The map was rendered and checked in the browser.
+Edit outcome: Not applicable; no optional code edit was requested.
+Reflection: Offered; no answer recorded because the learner redirected to submission drafting. No personal reflection recorded.
+Activity mode: Prior build practice connected; standalone app map generated, opened, and checked.
 
 ## Revisions
 

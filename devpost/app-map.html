@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Repo Context Packager | App Map</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: #172b3a;
+        background: #f4f7f9;
+      }
+
+      body {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 3rem;
+        line-height: 1.6;
+      }
+
+      a {
+        color: #075985;
+        text-underline-offset: 0.15em;
+      }
+
+      a:focus-visible {
+        outline: 3px solid #d97706;
+        outline-offset: 3px;
+      }
+
+      header,
+      section {
+        margin-block: 1.25rem;
+        padding: 1.25rem;
+        border: 1px solid #cfdae2;
+        border-radius: 0.75rem;
+        background: #fff;
+      }
+
+      h1,
+      h2 {
+        line-height: 1.2;
+      }
+
+      h1 {
+        margin-block: 0.25rem 0.5rem;
+      }
+
+      h2 {
+        margin-top: 0;
+        font-size: 1.25rem;
+      }
+
+      code,
+      pre {
+        font-family: Consolas, "Courier New", monospace;
+      }
+
+      code {
+        overflow-wrap: anywhere;
+      }
+
+      pre {
+        overflow-x: auto;
+        padding: 0.85rem;
+        border-radius: 0.4rem;
+        background: #edf3f7;
+      }
+
+      .eyebrow,
+      .muted {
+        color: #425b6c;
+      }
+
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        padding: 0;
+        list-style: none;
+      }
+
+      .flow li {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.6rem 0.75rem;
+        border: 1px solid #b7cad7;
+        border-radius: 0.5rem;
+        background: #f3f8fb;
+      }
+
+      .flow li:not(:last-child)::after {
+        content: "->";
+        color: #425b6c;
+        font-weight: 700;
+      }
+
+      .route li,
+      .pointers li {
+        margin-block: 0.55rem;
+      }
+
+      .snapshot {
+        padding-top: 0.75rem;
+        border-top: 1px solid #cfdae2;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <p class="eyebrow">Project map</p>
+      <h1>Repo Context Packager</h1>
+      <p>A local TypeScript CLI that scans a project, ranks likely-relevant files with explainable heuristics, and saves a compact context package for an AI coding workflow.</p>
+    </header>
+
+    <main>
+      <section aria-labelledby="flow-heading">
+        <h2 id="flow-heading">One run, end to end</h2>
+        <ol class="flow" aria-label="CLI processing flow">
+          <li>CLI options</li>
+          <li>Scan files and Git changes</li>
+          <li>Rank with task and structure clues</li>
+          <li>Package whole files within the budget</li>
+          <li>Print and save Markdown or JSON</li>
+        </ol>
+        <p class="muted">The scan stays on the local machine. Git is optional; when it is unavailable, task and structural clues still drive selection.</p>
+      </section>
+
+      <section aria-labelledby="route-heading">
+        <h2 id="route-heading">Reference route through the code</h2>
+        <p>This is a navigation guide, not a claim that these files were toured interactively.</p>
+        <ol class="route">
+          <li>
+            <a href="../src/cli.ts"><code>src/cli.ts</code></a> —
+            <code>parseOptions()</code> validates flags; <code>main()</code> coordinates the run and writes the artifact.
+          </li>
+          <li>
+            <a href="../src/scanner.ts"><code>src/scanner.ts</code></a> —
+            <code>scanRepository()</code> gathers eligible files and optional Git status.
+            Then <a href="../src/ranker.ts"><code>src/ranker.ts</code></a> —
+            <code>rankFiles()</code> assigns task, structural, change, and neighbor reasons.
+          </li>
+          <li>
+            <a href="../src/packager.ts"><code>src/packager.ts</code></a> —
+            <code>packageContext()</code> selects complete files and estimates serialized tokens.
+            <a href="../src/formatters.ts"><code>src/formatters.ts</code></a> renders Markdown or JSON.
+          </li>
+        </ol>
+      </section>
+
+      <section aria-labelledby="changes-heading">
+        <h2 id="changes-heading">To change this, start here</h2>
+        <ul class="pointers">
+          <li>CLI flags, validation, errors, and artifact destination: <a href="../src/cli.ts"><code>parseOptions()</code> and <code>main()</code></a>.</li>
+          <li>Ignored paths, eligible files, and Git status: <a href="../src/scanner.ts"><code>isExcludedFile()</code> and <code>scanRepository()</code></a>.</li>
+          <li>Task relevance, structural tie-breakers, and diff neighbors: <a href="../src/ranker.ts"><code>rankFiles()</code></a>; coverage is in <a href="../test/ranker.test.ts"><code>test/ranker.test.ts</code></a>.</li>
+          <li>Token estimates, whole-file caps, and omission reasons: <a href="../src/packager.ts"><code>estimateTokenCount()</code> and <code>packageContext()</code></a>; coverage is in <a href="../test/packager.test.ts"><code>test/packager.test.ts</code></a>.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="practice-heading">
+        <h2 id="practice-heading">A practice to reuse</h2>
+        <p>Early hands-on feedback found that structural-only files could appear even when a task was supplied. The task-matching test in <a href="../test/ranker.test.ts"><code>test/ranker.test.ts</code></a> now asserts that task matches govern selection, and <code>rankFiles()</code> implements that contract. On another project, turn a concrete user observation into an observable acceptance rule, then keep it from regressing with a focused test.</p>
+      </section>
+
+      <section aria-labelledby="run-heading">
+        <h2 id="run-heading">Run it again</h2>
+        <pre><code>npm test
+node .\dist\cli.js --task "add auth middleware" --max-tokens 1200</code></pre>
+        <p>The second command scans the current directory by default and writes <code>.context-pack.md</code>. Add <code>--format json</code> to write <code>.context-pack.json</code>.</p>
+        <p class="snapshot">Source snapshot: commit <code>cf8b419</code>. This map describes that code snapshot and may drift as the project changes.</p>
+      </section>
+    </main>
+  </body>
+</html>
