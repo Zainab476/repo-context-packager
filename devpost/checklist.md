@@ -9,7 +9,7 @@ Build mode: fast
 
 ## Slices
 
-- [ ] **1. Scan a repository and save task-aware Markdown context**
+- [x] **1. Scan a repository and save task-aware Markdown context**
   Becomes usable: A compiled CLI scans a target project, ranks eligible files using the optional task and structural clues, explains its choices, prints a compact Markdown package, and saves `.context-pack.md`.
   Why now: This delivers the unique kernel early as a complete, runnable workflow; project setup is included rather than isolated from a usable result.
   PRD ref: `prd.md > The Core Journey`; `prd.md > Features and Behavior > Repository and Diff Scanning`; `prd.md > Features and Behavior > Relevance Heuristics`; `prd.md > Features and Behavior > Context Output Package`

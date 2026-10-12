@@ -10,6 +10,7 @@ export type FileCategory =
 export interface CliOptions {
   target: string;
   task?: string;
+  diff: boolean;
   help: boolean;
 }
 
@@ -34,6 +35,8 @@ export interface ScanResult {
   files: FileCandidate[];
   scannedCount: number;
   excludedCount: number;
+  gitAvailable: boolean;
+  changedPaths: string[];
   projectHints: string[];
   warnings: string[];
 }
@@ -43,6 +46,8 @@ export interface ContextPackage {
   task?: string;
   scannedCount: number;
   excludedCount: number;
+  gitAvailable: boolean;
+  changedCount: number;
   projectHints: string[];
   files: RankedFile[];
 }

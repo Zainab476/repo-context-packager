@@ -9,11 +9,12 @@ import type { CliOptions, ContextPackage } from "./types.js";
 const HELP_TEXT = `context-pack - package relevant repository context for an LLM
 
 Usage:
-  context-pack [--target <directory>] [--task <description>]
+  context-pack [--target <directory>] [--task <description>] [--diff]
 
 Options:
   --target <directory>  Project to scan (defaults to the current directory)
   --task <description>  Rank files against a short task description
+  --diff                Focus on Git changes and directly related files
   --help, -h            Show this help
 `;
 
@@ -27,6 +28,7 @@ function requireValue(option: string, value: string | undefined): string {
 export function parseOptions(args: string[], cwd = process.cwd()): CliOptions {
   let target = cwd;
   let task: string | undefined;
+  let diff = false;
   let help = false;
 
   for (let index = 0; index < args.length; index += 1) {
@@ -40,6 +42,9 @@ export function parseOptions(args: string[], cwd = process.cwd()): CliOptions {
         task = requireValue(argument, args[index + 1]);
         index += 1;
         break;
+      case "--diff":
+        diff = true;
+        break;
       case "--help":
       case "-h":
         help = true;
@@ -49,7 +54,7 @@ export function parseOptions(args: string[], cwd = process.cwd()): CliOptions {
     }
   }
 
-  return { target, task, help };
+  return { target, task, diff, help };
 }
 
 function errorMessage(error: unknown): string {
@@ -74,12 +79,21 @@ async function main(): Promise<void> {
   process.stdout.write("Scanning repository structure...\n");
   try {
     const scan = await scanRepository(options.target);
-    const rankedFiles = rankFiles(scan.files, options.task);
+    const eligibleChangedCount = scan.files.filter((file) => file.changed).length;
+    if (options.diff && eligibleChangedCount === 0) {
+      scan.warnings.push("No eligible Git changes found for --diff; falling back to repository ranking.");
+    }
+    const rankedFiles = rankFiles(scan.files, {
+      task: options.task,
+      diff: options.diff,
+    });
     const context: ContextPackage = {
       projectName: path.basename(scan.root),
       task: options.task,
       scannedCount: scan.scannedCount,
       excludedCount: scan.excludedCount,
+      gitAvailable: scan.gitAvailable,
+      changedCount: scan.changedPaths.length,
       projectHints: scan.projectHints,
       files: rankedFiles,
     };
@@ -87,7 +101,7 @@ async function main(): Promise<void> {
     const outputPath = path.join(scan.root, ".context-pack.md");
 
     process.stdout.write(
-      `Scanned ${scan.scannedCount} files; selected ${rankedFiles.length} high-relevance files; excluded ${scan.excludedCount} files/directories.\n`,
+      `Scanned ${scan.scannedCount} files; Git status ${scan.gitAvailable ? "available" : "unavailable"} with ${scan.changedPaths.length} changed paths; selected ${rankedFiles.length} high-relevance files; excluded ${scan.excludedCount} files/directories.\n`,
     );
     if (scan.projectHints.length > 0) {
       process.stdout.write(`Project hints: ${scan.projectHints.join(" / ")}\n`);

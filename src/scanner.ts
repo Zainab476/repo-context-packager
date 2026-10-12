@@ -1,3 +1,4 @@
+import { execFile } from "node:child_process";
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import {
@@ -71,6 +72,12 @@ const SENSITIVE_NAMES = new Set([
 ]);
 
 const MAX_FILE_SIZE_BYTES = 256 * 1024;
+
+interface GitStatus {
+  available: boolean;
+  changedPaths: string[];
+  warning?: string;
+}
 
 function isExcludedFile(relativePath: string, name: string): boolean {
   const lowerName = name.toLowerCase();
@@ -231,6 +238,62 @@ async function collectFiles(root: string): Promise<{
   return { files, excludedCount };
 }
 
+function parseChangedPaths(status: string): string[] {
+  const records = status.split("\0");
+  const changedPaths = new Set<string>();
+
+  for (let index = 0; index < records.length; index += 1) {
+    const record = records[index];
+    if (!record || record.length < 4) {
+      continue;
+    }
+
+    const statusCode = record.slice(0, 2);
+    const filePath = record.slice(3).replace(/\\/g, "/");
+    if (filePath) {
+      changedPaths.add(filePath);
+    }
+
+    if (statusCode.includes("R") || statusCode.includes("C")) {
+      index += 1;
+    }
+  }
+
+  return [...changedPaths];
+}
+
+async function getGitStatus(root: string): Promise<GitStatus> {
+  return await new Promise((resolve) => {
+    execFile(
+      "git",
+      ["status", "--short", "--untracked-files=all", "-z"],
+      {
+        cwd: root,
+        encoding: "utf8",
+        maxBuffer: 4 * 1024 * 1024,
+        windowsHide: true,
+      },
+      (error, stdout) => {
+        if (error) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          resolve({
+            available: false,
+            changedPaths: [],
+            warning: `Git status unavailable; proceeding without Git-based ranking (${message}).`,
+          });
+          return;
+        }
+
+        resolve({
+          available: true,
+          changedPaths: parseChangedPaths(stdout),
+        });
+      },
+    );
+  });
+}
+
 function detectProjectHints(files: FileCandidate[], warnings: string[]): string[] {
   const hints = new Set<string>();
   const packageFile = files.find((file) => file.relativePath === "package.json");
@@ -282,12 +345,23 @@ export async function scanRepository(targetPath: string): Promise<ScanResult> {
 
   const { files, excludedCount } = await collectFiles(root);
   const warnings: string[] = [];
+  const gitStatus = await getGitStatus(root);
+
+  if (gitStatus.warning) {
+    warnings.push(gitStatus.warning);
+  }
+  const changedPathSet = new Set(gitStatus.changedPaths);
+  for (const file of files) {
+    file.changed = changedPathSet.has(file.relativePath);
+  }
 
   return {
     root,
     files,
     scannedCount: files.length,
     excludedCount,
+    gitAvailable: gitStatus.available,
+    changedPaths: gitStatus.changedPaths,
     projectHints: detectProjectHints(files, warnings),
     warnings,
   };

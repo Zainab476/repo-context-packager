@@ -13,6 +13,7 @@ export function formatMarkdown(context: ContextPackage): string {
     `- Files scanned: ${context.scannedCount}`,
     `- High-relevance files selected: ${context.files.length}`,
     `- Files and directories excluded: ${context.excludedCount}`,
+    `- Git status: ${context.gitAvailable ? "available" : "unavailable"} (${context.changedCount} changed paths)`,
   ];
 
   if (context.task) {
