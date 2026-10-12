@@ -68,6 +68,8 @@ The command defaults to the current directory, Markdown output, and no token cap
 
 For a direct run without linking, build and run `node <tool-repository>\dist\cli.js --target <project-path>`. A short terminal recording should show the command, scan summary, ranked files and reasons, token estimate/cap behavior, and the saved `.context-pack.md` (or JSON artifact). The submission still needs a short demo video and a public GitHub repository; deployment is optional and is not part of this local CLI.
 
+Public GitHub repository: https://github.com/Zainab476/repo-context-packager
+
 `npx context-pack` from a fresh machine requires a published or installed npm package. Publishing to npm is outside this proof of concept; use `npm link` or the direct Node command for the demo.
 
 ## Look and Feel
